@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin DS — AI-Powered Blockchain Data Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060810;
+  --bg2:#0c1020;
+  --bg3:#111827;
+  --surface:#141c2e;
+  --surface2:#1a2540;
+  --border:#1f2d47;
+  --border2:#263550;
+  --gold:#f7b731;
+  --gold2:#ffd43b;
+  --gold-dim:#7a5c19;
+  --teal:#00c9a7;
+  --teal-dim:#004d40;
+  --coral:#ff6b6b;
+  --coral-dim:#5c1c1c;
+  --blue:#4dabf7;
+  --blue-dim:#1a3a5c;
+  --purple:#b197fc;
+  --text:#e8ecf4;
+  --text2:#8899b4;
+  --text3:#4a5d7a;
+  --mono:'Space Mono',monospace;
+  --display:'Syne',sans-serif;
+  --body:'Inter',sans-serif;
+  --radius:8px;
+  --radius-lg:14px;
+  --glow-gold:0 0 40px rgba(247,183,49,.15);
+  --glow-teal:0 0 40px rgba(0,201,167,.12);
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.7;min-height:100vh}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── NOISE OVERLAY ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* ── TOPBAR ── */
+#topbar{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(6,8,16,.85);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 2rem;gap:2rem;z-index:100}
+.logo{font-family:var(--display);font-weight:800;font-size:17px;color:var(--gold);letter-spacing:-.01em;white-space:nowrap}
+.logo span{color:var(--text2);font-weight:400}
+.nav-links{display:flex;align-items:center;gap:4px;flex:1}
+.nav-link{font-family:var(--mono);font-size:11px;color:var(--text2);padding:5px 10px;border-radius:var(--radius);cursor:pointer;transition:all .2s;border:0.5px solid transparent;white-space:nowrap}
+.nav-link:hover,.nav-link.active{color:var(--gold);border-color:var(--gold-dim);background:rgba(247,183,49,.06)}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btc-ticker{font-family:var(--mono);font-size:11px;color:var(--teal);background:rgba(0,201,167,.08);border:0.5px solid var(--teal-dim);padding:4px 10px;border-radius:20px}
+.github-btn{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--surface);border:0.5px solid var(--border2);padding:5px 12px;border-radius:var(--radius);cursor:pointer;transition:all .2s;text-decoration:none}
+.github-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── LAYOUT ── */
+#sidebar{position:fixed;top:60px;left:0;width:260px;height:calc(100vh - 60px);background:var(--bg2);border-right:0.5px solid var(--border);overflow-y:auto;z-index:90;padding:1rem 0}
+#main{margin-left:260px;margin-top:60px;min-height:calc(100vh - 60px);padding:2.5rem 3rem;max-width:1100px}
+
+/* ── SIDEBAR ── */
+.sb-section{margin-bottom:.25rem}
+.sb-phase{font-family:var(--mono);font-size:10px;color:var(--text3);padding:10px 1.25rem 4px;letter-spacing:.1em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 1.25rem;cursor:pointer;transition:all .18s;border-left:2px solid transparent;color:var(--text2);font-size:13px}
+.sb-item:hover{background:rgba(247,183,49,.04);color:var(--text);border-left-color:var(--border2)}
+.sb-item.active{background:rgba(247,183,49,.07);color:var(--gold);border-left-color:var(--gold)}
+.sb-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:22px}
+.sb-item.active .sb-num{color:var(--gold-dim)}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.sb-item.active .sb-dot{background:var(--gold)}
+.sb-item.done .sb-dot{background:var(--teal)}
+.sb-divider{height:0.5px;background:var(--border);margin:.5rem 0}
+
+/* ── PAGES (hidden by default) ── */
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.hero{padding:3rem 0 4rem;border-bottom:0.5px solid var(--border);margin-bottom:3rem;position:relative}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:var(--teal)}
+.hero-title{font-family:var(--display);font-size:clamp(32px,4vw,52px);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:1.25rem}
+.hero-title .hl{color:var(--gold)}
+.hero-title .hl2{color:var(--teal)}
+.hero-sub{font-size:16px;color:var(--text2);max-width:560px;line-height:1.7;margin-bottom:2rem}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{font-family:var(--mono);font-size:12px;padding:10px 22px;background:var(--gold);color:#000;border:none;border-radius:var(--radius);cursor:pointer;font-weight:700;transition:all .2s;letter-spacing:.02em}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px);box-shadow:var(--glow-gold)}
+.btn-secondary{font-family:var(--mono);font-size:12px;padding:10px 22px;background:transparent;color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;margin-top:3rem;padding-top:2rem;border-top:0.5px solid var(--border)}
+.stat{text-align:center}
+.stat-val{font-family:var(--display);font-size:22px;font-weight:700;color:var(--gold)}
+.stat-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+/* ── SECTION HEADER ── */
+.section-hd{margin-bottom:2rem}
+.section-hd h2{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:.35rem}
+.section-hd p{font-size:14px;color:var(--text2)}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:.75rem}
+.tag{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;border:0.5px solid}
+
+/* ── MODULE CARD ── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:2.5rem}
+.mod-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .25s}
+.mod-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.mod-card:hover::before{background:var(--gold)}
+.mod-card.done{border-color:var(--teal-dim)}
+.mod-card.done::before{background:var(--teal)}
+.mod-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem}
+.mod-num{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.mod-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;border:0.5px solid}
+.badge-done{background:rgba(0,201,167,.1);color:var(--teal);border-color:var(--teal-dim)}
+.badge-next{background:rgba(247,183,49,.1);color:var(--gold);border-color:var(--gold-dim)}
+.badge-up{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.mod-title{font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:.4rem;line-height:1.3}
+.mod-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:.85rem}
+.mod-apis{display:flex;gap:5px;flex-wrap:wrap}
+.api-pill{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg);border:0.5px solid var(--border);padding:2px 7px;border-radius:20px}
+.mod-card-footer{margin-top:.85rem;padding-top:.75rem;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.topics-count{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.open-btn{font-family:var(--mono);font-size:10px;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:4px}
+.open-btn:hover{text-decoration:underline}
+
+/* ── MODULE DETAIL PAGE ── */
+.detail-nav{display:flex;align-items:center;gap:10px;margin-bottom:2rem;font-size:13px;color:var(--text3)}
+.detail-nav a{color:var(--text2);cursor:pointer;text-decoration:none}
+.detail-nav a:hover{color:var(--gold)}
+.detail-nav span{color:var(--text3)}
+.detail-header{padding:2rem;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:1.5rem}
+.detail-meta{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.detail-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:.5rem}
+.detail-desc{font-size:14px;color:var(--text2);max-width:620px;line-height:1.7}
+.deliverable-box{background:rgba(247,183,49,.05);border:0.5px solid var(--gold-dim);border-radius:var(--radius);padding:1rem 1.25rem;margin-top:1rem}
+.deliverable-label{font-family:var(--mono);font-size:10px;color:var(--gold-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.deliverable-text{font-size:13px;color:var(--text2);line-height:1.6}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:1.5rem}
+.topic-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem}
+.topic-card-title{font-family:var(--display);font-size:13px;font-weight:600;color:var(--text);margin-bottom:.6rem;display:flex;align-items:center;gap:6px}
+.topic-card-icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.sub-list{list-style:none}
+.sub-list li{font-size:12px;color:var(--text2);padding:3px 0;padding-left:12px;border-left:1.5px solid var(--border);margin-bottom:2px;line-height:1.5}
+.sub-list li::marker{content:''}
+.code-block{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;font-family:var(--mono);font-size:12px;line-height:1.8;overflow-x:auto;margin:1rem 0;position:relative}
+.code-block .cb-label{font-size:10px;color:var(--text3);letter-spacing:.06em;margin-bottom:.75rem;text-transform:uppercase}
+.c-cm{color:var(--text3);font-style:italic}
+.c-kw{color:var(--purple)}
+.c-fn{color:var(--teal)}
+.c-st{color:var(--coral)}
+.c-num{color:var(--gold)}
+.c-ok{color:var(--teal)}
+
+/* ── LIVE DASHBOARD PANEL ── */
+.live-panel{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:2rem}
+.live-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.live-panel-title{font-family:var(--display);font-size:16px;font-weight:700}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.live-label{font-family:var(--mono);font-size:10px;color:var(--teal);display:flex;align-items:center;gap:5px}
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.metric{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:.85rem 1rem}
+.metric-label{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+.metric-val{font-family:var(--display);font-size:20px;font-weight:700;color:var(--gold)}
+.metric-sub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:.2rem}
+.metric-val.up{color:var(--teal)}
+.metric-val.dn{color:var(--coral)}
+.metric-val.neutral{color:var(--text)}
+
+/* ── PHASE HEADER BAND ── */
+.phase-band{display:flex;align-items:center;gap:12px;padding:.75rem 1.25rem;border-radius:var(--radius);border:0.5px solid var(--border);margin-bottom:1.25rem}
+.phase-num{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:56px}
+.phase-name{font-family:var(--display);font-size:15px;font-weight:700}
+.phase-range{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:auto}
+
+/* ── SETUP PAGE ── */
+.setup-step{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:14px;position:relative}
+.setup-step-num{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:.5rem}
+.setup-step h3{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:.5rem}
+.setup-step p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:.75rem}
+.inline-code{font-family:var(--mono);font-size:11px;background:var(--bg);border:0.5px solid var(--border);padding:2px 7px;border-radius:4px;color:var(--gold)}
+.copy-btn{position:absolute;top:1.25rem;right:1.25rem;font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg);border:0.5px solid var(--border);padding:4px 10px;border-radius:var(--radius);cursor:pointer;transition:all .18s}
+.copy-btn:hover{color:var(--gold);border-color:var(--gold-dim)}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:1.5rem 0}
+.tech-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem}
+.tech-icon{font-size:20px;margin-bottom:.5rem}
+.tech-name{font-family:var(--display);font-size:13px;font-weight:600;margin-bottom:.2rem}
+.tech-ver{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.tech-why{font-size:12px;color:var(--text2);margin-top:.3rem;line-height:1.5}
+
+/* ── BREADCRUMB ── */
+.breadcrumb{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:2rem;display:flex;align-items:center;gap:6px}
+.breadcrumb span{cursor:pointer;color:var(--text2)}
+.breadcrumb span:hover{color:var(--gold)}
+.breadcrumb .sep{color:var(--border2)}
+
+/* ── CHART AREA ── */
+.chart-wrap{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem;margin:1rem 0;height:160px;display:flex;align-items:flex-end;gap:2px;overflow:hidden;position:relative}
+.chart-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.chart-label{position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:800px){
+  #sidebar{display:none}
+  #main{margin-left:0;padding:1.5rem}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header id="topbar">
+  <div class="logo">BITCOIN<span>·DS</span></div>
+  <nav class="nav-links" id="topnav">
+    <div class="nav-link active" onclick="showPage('home')">Home</div>
+    <div class="nav-link" onclick="showPage('phase1')">Phase 1</div>
+    <div class="nav-link" onclick="showPage('phase2')">Phase 2</div>
+    <div class="nav-link" onclick="showPage('phase3')">Phase 3</div>
+    <div class="nav-link" onclick="showPage('dashboard')">Live Dashboard</div>
+    <div class="nav-link" onclick="showPage('setup')">Setup &amp; Deploy</div>
+  </nav>
+  <div class="topbar-right">
+    <div class="btc-ticker" id="ticker">BTC — loading…</div>
+    <a class="github-btn" href="https://github.com/your-username/bitcoin-ds-platform" target="_blank">GitHub ↗</a>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-phase">Overview</div>
+  <div class="sb-item active" onclick="showPage('home')"><span class="sb-num">—</span><span class="sb-dot done"></span>Home</div>
+  <div class="sb-item" onclick="showPage('dashboard')"><span class="sb-num">—</span><span class="sb-dot done"></span>Live Dashboard</div>
+  <div class="sb-divider"></div>
+
+  <div class="sb-phase">Phase 1 — Foundations</div>
+  <div class="sb-item done" onclick="showModule(0)"><span class="sb-num">M0</span><span class="sb-dot done"></span>Python Foundations</div>
+  <div class="sb-item" onclick="showModule(1)"><span class="sb-num">M1</span><span class="sb-dot"></span>Advanced Python &amp; OOP</div>
+  <div class="sb-item" onclick="showModule(2)"><span class="sb-num">M2</span><span class="sb-dot"></span>NumPy</div>
+  <div class="sb-item" onclick="showModule(3)"><span class="sb-num">M3</span><span class="sb-dot"></span>Pandas</div>
+  <div class="sb-item" onclick="showModule(4)"><span class="sb-num">M4</span><span class="sb-dot"></span>Matplotlib &amp; Seaborn</div>
+  <div class="sb-divider"></div>
+
+  <div class="sb-phase">Phase 2 — Storage &amp; Apps</div>
+  <div class="sb-item" onclick="showModule(5)"><span class="sb-num">M5</span><span class="sb-dot"></span>SQL &amp; NoSQL</div>
+  <div class="sb-item" onclick="showModule(6)"><span class="sb-num">M6</span><span class="sb-dot"></span>Streamlit Apps</div>
+  <div class="sb-divider"></div>
+
+  <div class="sb-phase">Phase 3 — Statistics &amp; ML</div>
+  <div class="sb-item" onclick="showModule(7)"><span class="sb-num">M7</span><span class="sb-dot"></span>Statistics Foundations</div>
+  <div class="sb-item" onclick="showModule(8)"><span class="sb-num">M8</span><span class="sb-dot"></span>Advanced Statistics</div>
+  <div class="sb-item" onclick="showModule(9)"><span class="sb-num">M9</span><span class="sb-dot"></span>Feature Engineering</div>
+  <div class="sb-item" onclick="showModule(10)"><span class="sb-num">M10</span><span class="sb-dot"></span>EDA</div>
+  <div class="sb-item" onclick="showModule(11)"><span class="sb-num">M11</span><span class="sb-dot"></span>Machine Learning</div>
+  <div class="sb-item" onclick="showModule(12)"><span class="sb-num">M12</span><span class="sb-dot"></span>Ensemble &amp; Advanced ML</div>
+  <div class="sb-divider"></div>
+
+  <div class="sb-phase">Modules 13–26</div>
+  <div class="sb-item" onclick="showPage('future')"><span class="sb-num">M13+</span><span class="sb-dot"></span>NLP → Agents → MCP</div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- HOME PAGE -->
+<div class="page active" id="pg-home">
+  <div class="hero">
+    <div class="hero-eyebrow">AI-Powered Blockchain Data Science</div>
+    <h1 class="hero-title">
+      Bitcoin Data Science<br>
+      <span class="hl">from Genesis</span> to<br>
+      <span class="hl2">Artificial Intelligence</span>
+    </h1>
+    <p class="hero-sub">27 modules transforming every Python fundamental into live Bitcoin blockchain analysis — from satoshis and block hashes to XGBoost price prediction and multi-agent research systems.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showModule(0)">Start Module 0</button>
+      <button class="btn-secondary" onclick="showPage('setup')">Setup Guide</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-val">27</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-val">3</div><div class="stat-label">Phases</div></div>
+      <div class="stat"><div class="stat-val" id="h-blockheight">—</div><div class="stat-label">Live Block</div></div>
+      <div class="stat"><div class="stat-val" id="h-price">—</div><div class="stat-label">BTC/USD</div></div>
+      <div class="stat"><div class="stat-val">6</div><div class="stat-label">Free APIs</div></div>
+    </div>
+  </div>
+
+  <div id="phase-overview"></div>
+</div>
+
+<!-- PHASE 1 PAGE -->
+<div class="page" id="pg-phase1">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Phase 1</div>
+  <div class="section-hd">
+    <h2>Phase 1 — Python &amp; Data Foundations</h2>
+    <p>Modules 0 – 4. Every Python concept anchored to live Bitcoin data. No toy examples.</p>
+    <div class="tag-row">
+      <span class="tag" style="color:var(--gold);border-color:var(--gold-dim);background:rgba(247,183,49,.06)">Python 3.12</span>
+      <span class="tag" style="color:var(--teal);border-color:var(--teal-dim);background:rgba(0,201,167,.06)">NumPy</span>
+      <span class="tag" style="color:var(--blue);border-color:var(--blue-dim);background:rgba(77,171,247,.06)">Pandas</span>
+      <span class="tag" style="color:var(--text2);border-color:var(--border)">Matplotlib</span>
+      <span class="tag" style="color:var(--text2);border-color:var(--border)">Seaborn</span>
+    </div>
+  </div>
+  <div id="grid-phase1" class="module-grid"></div>
+</div>
+
+<!-- PHASE 2 PAGE -->
+<div class="page" id="pg-phase2">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Phase 2</div>
+  <div class="section-hd">
+    <h2>Phase 2 — Storage, Databases &amp; Apps</h2>
+    <p>Modules 5 – 6. Persist your Bitcoin data and ship a live interactive dashboard.</p>
+    <div class="tag-row">
+      <span class="tag" style="color:var(--gold);border-color:var(--gold-dim);background:rgba(247,183,49,.06)">PostgreSQL</span>
+      <span class="tag" style="color:var(--teal);border-color:var(--teal-dim);background:rgba(0,201,167,.06)">Supabase</span>
+      <span class="tag" style="color:var(--blue);border-color:var(--blue-dim);background:rgba(77,171,247,.06)">MongoDB</span>
+      <span class="tag" style="color:var(--text2);border-color:var(--border)">Streamlit</span>
+    </div>
+  </div>
+  <div id="grid-phase2" class="module-grid"></div>
+</div>
+
+<!-- PHASE 3 PAGE -->
+<div class="page" id="pg-phase3">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Phase 3</div>
+  <div class="section-hd">
+    <h2>Phase 3 — Statistics &amp; Machine Learning</h2>
+    <p>Modules 7 – 12. From statistical proofs to XGBoost price prediction and regime clustering.</p>
+    <div class="tag-row">
+      <span class="tag" style="color:var(--gold);border-color:var(--gold-dim);background:rgba(247,183,49,.06)">SciPy</span>
+      <span class="tag" style="color:var(--teal);border-color:var(--teal-dim);background:rgba(0,201,167,.06)">scikit-learn</span>
+      <span class="tag" style="color:var(--blue);border-color:var(--blue-dim);background:rgba(77,171,247,.06)">XGBoost</span>
+      <span class="tag" style="color:var(--text2);border-color:var(--border)">SHAP</span>
+    </div>
+  </div>
+  <div id="grid-phase3" class="module-grid"></div>
+</div>
+
+<!-- LIVE DASHBOARD PAGE -->
+<div class="page" id="pg-dashboard">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Live Dashboard</div>
+  <div class="section-hd">
+    <h2>Live Bitcoin Network Dashboard</h2>
+    <p>Real-time data from free public APIs. No key required. Refreshes every 60 seconds.</p>
+  </div>
+  <div class="live-panel">
+    <div class="live-panel-head">
+      <div class="live-panel-title">Market &amp; Network Metrics</div>
+      <div class="live-label"><div class="live-dot"></div>Live</div>
+    </div>
+    <div class="metrics-row" id="dash-metrics">
+      <div class="metric"><div class="metric-label">BTC / USD</div><div class="metric-val" id="d-price">—</div><div class="metric-sub" id="d-24h">24h change</div></div>
+      <div class="metric"><div class="metric-label">Market Cap</div><div class="metric-val neutral" id="d-mcap">—</div><div class="metric-sub">USD</div></div>
+      <div class="metric"><div class="metric-label">Block Height</div><div class="metric-val neutral" id="d-height">—</div><div class="metric-sub">blocks since genesis</div></div>
+      <div class="metric"><div class="metric-label">Hash Rate</div><div class="metric-val neutral" id="d-hash">—</div><div class="metric-sub">EH/s</div></div>
+      <div class="metric"><div class="metric-label">Difficulty</div><div class="metric-val neutral" id="d-diff">—</div><div class="metric-sub">current</div></div>
+      <div class="metric"><div class="metric-label">Txs Today</div><div class="metric-val neutral" id="d-tx">—</div><div class="metric-sub">count</div></div>
+    </div>
+  </div>
+  <div class="live-panel">
+    <div class="live-panel-head">
+      <div class="live-panel-title">Halving Countdown</div>
+    </div>
+    <div id="halving-section"></div>
+  </div>
+</div>
+
+<!-- MODULE DETAIL PAGE (dynamic) -->
+<div class="page" id="pg-module">
+  <div id="module-detail-content"></div>
+</div>
+
+<!-- FUTURE MODULES PAGE -->
+<div class="page" id="pg-future">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Modules 13–26</div>
+  <div class="section-hd">
+    <h2>Phase 4 &amp; 5 — Deep Learning → Multi-Agent AI</h2>
+    <p>Modules 13–26. NLP sentiment, LSTM forecasting, Transformers, RAG, LangChain, LangGraph, and a full multi-agent Bitcoin research system.</p>
+  </div>
+  <div id="grid-future" class="module-grid"></div>
+</div>
+
+<!-- SETUP PAGE -->
+<div class="page" id="pg-setup">
+  <div class="breadcrumb"><span onclick="showPage('home')">Home</span><span class="sep">/</span>Setup &amp; Deploy</div>
+  <div class="section-hd">
+    <h2>Setup, Install &amp; Deploy</h2>
+    <p>Everything you need to run this platform locally and push to GitHub.</p>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:1rem;color:var(--text2)">Tech Stack</h3>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="tech-icon">🐍</div><div class="tech-name">Python</div><div class="tech-ver">3.12.x (required)</div><div class="tech-why">Core language for all notebooks and analysis</div></div>
+    <div class="tech-card"><div class="tech-icon">📓</div><div class="tech-name">Jupyter</div><div class="tech-ver">notebook 7.x / lab 4.x</div><div class="tech-why">Interactive notebook environment</div></div>
+    <div class="tech-card"><div class="tech-icon">🌐</div><div class="tech-name">This website</div><div class="tech-ver">Vanilla HTML/CSS/JS</div><div class="tech-why">Zero dependencies — open index.html directly</div></div>
+    <div class="tech-card"><div class="tech-icon">🚀</div><div class="tech-name">Streamlit</div><div class="tech-ver">1.32.x</div><div class="tech-why">Live Bitcoin dashboard app (Module 6)</div></div>
+    <div class="tech-card"><div class="tech-icon">🗄️</div><div class="tech-name">Supabase</div><div class="tech-ver">free tier</div><div class="tech-why">Postgres cloud DB for OHLCV storage</div></div>
+    <div class="tech-card"><div class="tech-icon">🍃</div><div class="tech-name">MongoDB Atlas</div><div class="tech-ver">free tier (512 MB)</div><div class="tech-why">NoSQL for raw blockchain API responses</div></div>
+    <div class="tech-card"><div class="tech-icon">🔗</div><div class="tech-name">Git + GitHub</div><div class="tech-ver">git 2.x</div><div class="tech-why">Version control and collaboration</div></div>
+    <div class="tech-card"><div class="tech-icon">📦</div><div class="tech-name">uv / pip</div><div class="tech-ver">uv 0.4.x (recommended)</div><div class="tech-why">Fast Python package management</div></div>
+  </div>
+
+  <h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin:1.5rem 0 1rem;color:var(--text2)">Step-by-step installation</h3>
+
+  <div class="setup-step">
+    <button class="copy-btn" onclick="copyCode(this,'git clone https://github.com/your-username/bitcoin-ds-platform.git\ncd bitcoin-ds-platform')">copy</button>
+    <div class="setup-step-num">Step 1 — Clone the repository</div>
+    <h3>Get the code</h3>
+    <p>Clone the repo and enter the project directory. Replace <span class="inline-code">your-username</span> with your GitHub handle.</p>
+    <div class="code-block">
+      <div class="cb-label">terminal</div>
+      <span class="c-cm"># Clone via HTTPS</span><br>
+      git clone https://github.com/your-username/bitcoin-ds-platform.git<br>
+      cd bitcoin-ds-platform<br><br>
+      <span class="c-cm"># Or clone via SSH (recommended)</span><br>
+      git clone git@github.com:your-username/bitcoin-ds-platform.git
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <button class="copy-btn" onclick="copyCode(this,'python -m venv .venv\nsource .venv/bin/activate\npip install -r requirements.txt')">copy</button>
+    <div class="setup-step-num">Step 2 — Python virtual environment</div>
+    <h3>Isolate dependencies</h3>
+    <p>Always use a virtual environment. This keeps your system Python clean and makes the project reproducible.</p>
+    <div class="code-block">
+      <div class="cb-label">terminal — macOS / Linux</div>
+      python3.12 -m venv .venv<br>
+      source .venv/bin/activate<br>
+      pip install --upgrade pip<br>
+      pip install -r requirements.txt
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">terminal — windows</div>
+      python -m venv .venv<br>
+      .venv\Scripts\activate<br>
+      pip install -r requirements.txt
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 3 — requirements.txt (full stack)</div>
+    <h3>All dependencies in one file</h3>
+    <p>This covers every module from 0 through 26. Pin versions for reproducibility.</p>
+    <div class="code-block">
+      <div class="cb-label">requirements.txt</div>
+      <span class="c-cm"># Core data science</span><br>
+      numpy==1.26.4<br>
+      pandas==2.2.2<br>
+      matplotlib==3.9.0<br>
+      seaborn==0.13.2<br>
+      scipy==1.13.1<br>
+      scikit-learn==1.5.0<br>
+      xgboost==2.0.3<br>
+      lightgbm==4.3.0<br>
+      shap==0.45.1<br><br>
+      <span class="c-cm"># Notebook &amp; apps</span><br>
+      jupyter==1.0.0<br>
+      jupyterlab==4.2.1<br>
+      streamlit==1.35.0<br>
+      plotly==5.22.0<br><br>
+      <span class="c-cm"># Bitcoin &amp; APIs</span><br>
+      requests==2.32.3<br>
+      websocket-client==1.8.0<br>
+      ccxt==4.3.25<br><br>
+      <span class="c-cm"># Databases</span><br>
+      supabase==2.4.6<br>
+      pymongo==4.7.3<br>
+      psycopg2-binary==2.9.9<br><br>
+      <span class="c-cm"># NLP &amp; deep learning (Module 13+)</span><br>
+      transformers==4.41.2<br>
+      torch==2.3.1<br>
+      langchain==0.2.5<br>
+      langchain-anthropic==0.1.15<br>
+      langgraph==0.1.9<br>
+      chromadb==0.5.3<br><br>
+      <span class="c-cm"># Utilities</span><br>
+      python-dotenv==1.0.1<br>
+      tqdm==4.66.4<br>
+      apscheduler==3.10.4
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 4 — Environment variables</div>
+    <h3>API keys and secrets</h3>
+    <p>Create a <span class="inline-code">.env</span> file in the project root. <strong>Never commit this file.</strong> It is already in <span class="inline-code">.gitignore</span>.</p>
+    <div class="code-block">
+      <div class="cb-label">.env — template</div>
+      <span class="c-cm"># Free APIs — no key needed for Modules 0–4</span><br>
+      <span class="c-cm"># COINGECKO_API_KEY=optional_for_higher_rate_limits</span><br><br>
+      <span class="c-cm"># Supabase (Module 5) — get from supabase.com</span><br>
+      SUPABASE_URL=https://your-project.supabase.co<br>
+      SUPABASE_KEY=your-anon-key<br><br>
+      <span class="c-cm"># MongoDB Atlas (Module 5)</span><br>
+      MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/bitcoinds<br><br>
+      <span class="c-cm"># Anthropic (Module 16+)</span><br>
+      ANTHROPIC_API_KEY=sk-ant-your-key<br><br>
+      <span class="c-cm"># Glassnode (Module 9+ on-chain features, free tier)</span><br>
+      GLASSNODE_API_KEY=your-key
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 5 — Run the website locally</div>
+    <h3>Open the platform</h3>
+    <p>This website is a single HTML file with zero build step. Open it directly — or serve with Python's built-in server for proper asset loading.</p>
+    <div class="code-block">
+      <div class="cb-label">option A — direct open (simplest)</div>
+      open index.html<span class="c-cm">  # macOS</span><br>
+      start index.html<span class="c-cm">  # Windows</span><br>
+      xdg-open index.html<span class="c-cm">  # Linux</span>
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">option B — local server (recommended)</div>
+      <span class="c-cm"># Python built-in (no install needed)</span><br>
+      python -m http.server 8080<br>
+      <span class="c-cm"># then open http://localhost:8080</span><br><br>
+      <span class="c-cm"># Or with Node.js</span><br>
+      npx serve . -p 8080
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 6 — Launch Jupyter notebooks</div>
+    <h3>Open the notebook environment</h3>
+    <div class="code-block">
+      <div class="cb-label">terminal</div>
+      <span class="c-cm"># Classic notebook interface</span><br>
+      jupyter notebook<br><br>
+      <span class="c-cm"># JupyterLab (recommended — more features)</span><br>
+      jupyter lab<br><br>
+      <span class="c-cm"># Specific notebook</span><br>
+      jupyter lab notebooks/module0_bitcoin_foundations.ipynb
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 7 — Git &amp; GitHub workflow</div>
+    <h3>Version control every notebook</h3>
+    <div class="code-block">
+      <div class="cb-label">initial setup</div>
+      git init<br>
+      git remote add origin git@github.com:your-username/bitcoin-ds-platform.git<br>
+      git add .<br>
+      git commit -m "feat: initialise Bitcoin DS platform"<br>
+      git push -u origin main
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">recommended .gitignore</div>
+      .env<br>
+      .venv/<br>
+      __pycache__/<br>
+      *.pyc<br>
+      .ipynb_checkpoints/<br>
+      .DS_Store<br>
+      *.egg-info/<br>
+      dist/<br>
+      data/raw/<span class="c-cm">  # large data files — use DVC or Git LFS</span>
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">module-by-module workflow</div>
+      <span class="c-cm"># Feature branch per module</span><br>
+      git checkout -b module/01-oop-bitcoin<br>
+      <span class="c-cm"># ... do work ...</span><br>
+      git add notebooks/module1_oop_bitcoin.ipynb<br>
+      git commit -m "feat(m1): add BitcoinWallet and Transaction classes"<br>
+      git push origin module/01-oop-bitcoin<br>
+      <span class="c-cm"># Open PR on GitHub → merge to main</span>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 8 — Deploy Streamlit dashboard (Module 6)</div>
+    <h3>Ship the live dashboard</h3>
+    <div class="code-block">
+      <div class="cb-label">local run</div>
+      streamlit run streamlit_app/bitcoin_dashboard.py
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">deploy to Streamlit Cloud (free)</div>
+      <span class="c-cm"># 1. Push streamlit_app/ to GitHub</span><br>
+      <span class="c-cm"># 2. Go to share.streamlit.io</span><br>
+      <span class="c-cm"># 3. Connect repo → select streamlit_app/bitcoin_dashboard.py</span><br>
+      <span class="c-cm"># 4. Add secrets in the Streamlit Cloud UI (mirror your .env)</span><br>
+      <span class="c-cm"># 5. Deploy — live URL in ~2 minutes</span>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">Step 9 — Deploy this website (optional)</div>
+    <h3>Host the platform on the web</h3>
+    <div class="code-block">
+      <div class="cb-label">GitHub Pages (free, automatic)</div>
+      <span class="c-cm"># In GitHub repo Settings → Pages</span><br>
+      <span class="c-cm"># Source: Deploy from branch → main → / (root)</span><br>
+      <span class="c-cm"># Your site: https://your-username.github.io/bitcoin-ds-platform</span>
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">Netlify (drag &amp; drop)</div>
+      <span class="c-cm"># Drag the project folder to netlify.com/drop</span><br>
+      <span class="c-cm"># Or connect GitHub repo for auto-deploy on every push</span>
+    </div>
+    <div class="code-block" style="margin-top:8px">
+      <div class="cb-label">Vercel</div>
+      npm i -g vercel<br>
+      vercel deploy<br>
+      <span class="c-cm"># Follows vercel.json config if present — otherwise auto-detects static site</span>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="setup-step-num">APIs used in this project</div>
+    <h3>All free, no key required for Modules 0–4</h3>
+    <div class="code-block">
+      <div class="cb-label">free apis — zero setup</div>
+      <span class="c-cm"># Price data</span><br>
+      https://api.coingecko.com/api/v3/simple/price<br>
+      https://api.coingecko.com/api/v3/coins/bitcoin/market_chart<br><br>
+      <span class="c-cm"># Network stats</span><br>
+      https://blockchain.info/stats?format=json<br>
+      https://blockchain.info/rawtx/{txid}<br><br>
+      <span class="c-cm"># Mempool</span><br>
+      https://mempool.space/api/v1/fees/recommended<br>
+      https://mempool.space/api/blocks/tip/height<br><br>
+      <span class="c-cm"># Macro (Module 9+)</span><br>
+      https://fred.stlouisfed.org/graph/fredgraph.csv?id=DXY
+    </div>
+  </div>
+</div>
+
+</main><!-- /main -->
+
+<script>
+/* ────────────────────────────────────────────────
+   DATA
+──────────────────────────────────────────────── */
+const MODULES = [
+  {num:0,phase:1,name:"Python Foundations",status:"done",
+   desc:"Variables, data types, type casting, naming conventions, comments, and all arithmetic operators — every concept anchored to live BTC price and blockchain stats.",
+   topics:[
+     {icon:"🔢",name:"Variables & memory model",subs:["Assignment & id()","print() vs notebook display","f-string formatting"]},
+     {icon:"🏷️",name:"Data types",subs:["int: satoshis & block height","float: BTC amounts & prices","str: tx hashes & addresses","bool: confirmation & segwit flags"]},
+     {icon:"💬",name:"Comments & docstrings",subs:["# single-line comments","\"\"\" multi-line \"\"\"","help() and __doc__","Why not What rule"]},
+     {icon:"📝",name:"Naming conventions",subs:["snake_case variables","Unit suffixes: price_usd, amount_sat","Avoid shadowing builtins"]},
+     {icon:"🔄",name:"Type casting",subs:["Satoshi → BTC → USD → str","int() truncation vs round()","bool() truthiness guards","Lossy vs lossless casts"]},
+     {icon:"➕",name:"Arithmetic operators",subs:["+ − × / : mining economics","// % ** : halving maths","Augmented assignment +=","CAGR formula with precedence"]},
+   ],
+   btc:"Fetch live BTC/USD from CoinGecko. Pull block height, hash rate from Blockchain.info. Calculate mining P&L, portfolio CAGR, full halving schedule to 2140.",
+   apis:["coingecko.com","blockchain.info"],
+   code:`<span class="c-kw">import</span> requests\n\n<span class="c-cm"># Fetch live BTC price — no API key needed</span>\ndata = requests.<span class="c-fn">get</span>(\n    <span class="c-st">"https://api.coingecko.com/api/v3/simple/price"</span>\n    <span class="c-st">"?ids=bitcoin&vs_currencies=usd,sgd"</span>\n    <span class="c-st">"&include_24hr_change=true"</span>\n).<span class="c-fn">json</span>()\n\nbtc_price_usd  = data[<span class="c-st">"bitcoin"</span>][<span class="c-st">"usd"</span>]      <span class="c-cm"># float</span>\nbtc_24h_change = data[<span class="c-st">"bitcoin"</span>][<span class="c-st">"usd_24h_change"</span>]  <span class="c-cm"># float</span>\n\n<span class="c-fn">print</span>(<span class="c-st">f"BTC/USD   : $<span style="color:var(--gold)">{</span>btc_price_usd:,.2f<span style="color:var(--gold)">}</span>"</span>)\n<span class="c-fn">print</span>(<span class="c-st">f"24h change: <span style="color:var(--gold)">{</span>btc_24h_change:+.2f<span style="color:var(--gold)">}</span>%"</span>)`
+  },
+  {num:1,phase:1,name:"Advanced Python & OOP",status:"next",
+   desc:"Build a BitcoinWallet class, Transaction data model, and BlockchainAnalyzer context manager using real blockchain.info API data.",
+   topics:[
+     {icon:"🏗️",name:"Classes & objects",subs:["__init__, __repr__, __str__","Instance vs class attributes","PascalCase: BitcoinWallet, Transaction"]},
+     {icon:"🔒",name:"Encapsulation",subs:["Private: _transactions","@property balance","Setter validation"]},
+     {icon:"🌿",name:"Inheritance",subs:["BaseAsset → Bitcoin","Method overriding","isinstance() in pipelines"]},
+     {icon:"⚙️",name:"Static & class methods",subs:["@staticmethod: SatoshiConverter","@classmethod: from_api_response()","Dunder: __eq__ __lt__ __add__"]},
+     {icon:"📂",name:"File handling",subs:["Wallet history as JSON","CSV price data import","with open() context manager"]},
+     {icon:"⚠️",name:"Exception handling",subs:["try / except / finally","InvalidSatoshiAmount","API timeout handling"]},
+   ],
+   btc:"BitcoinWallet class with DCA tracking. Transaction objects from blockchain.info/rawtx. BlockchainAnalyzer as context manager. Save/load wallet JSON.",
+   apis:["blockchain.info/rawtx","blockchain.info/address"],
+   code:`<span class="c-kw">class</span> <span class="c-fn">Transaction</span>:\n    <span class="c-st">"""A Bitcoin transaction fetched from blockchain.info."""</span>\n\n    <span class="c-kw">def</span> <span class="c-fn">__init__</span>(self, txid: str, amount_sat: int, fee_sat: int):\n        self.txid       = txid\n        self.amount_sat = amount_sat   <span class="c-cm"># int: satoshis</span>\n        self.fee_sat    = fee_sat\n        self.confirmed  = <span class="c-kw">False</span>\n\n    <span class="c-kw">def</span> <span class="c-fn">amount_btc</span>(self) -> float:\n        <span class="c-kw">return</span> self.amount_sat / <span class="c-num">100_000_000</span>\n\n    <span class="c-kw">def</span> <span class="c-fn">__repr__</span>(self):\n        <span class="c-kw">return</span> <span class="c-st">f"TX(<span style="color:var(--gold)">{</span>self.txid[:<span class="c-num">8</span>]<span style="color:var(--gold)">}</span>… <span style="color:var(--gold)">{</span>self.<span class="c-fn">amount_btc</span>():.8f<span style="color:var(--gold)">}</span> BTC)"</span>`
+  },
+  {num:2,phase:1,name:"NumPy — Numerical Computing",status:"upcoming",
+   desc:"Load 4 years of Bitcoin prices into NumPy arrays. Compute rolling volatility, Sharpe ratio, and a correlation matrix of price vs hash rate vs difficulty.",
+   topics:[
+     {icon:"📊",name:"Array creation & indexing",subs:["np.array() from price lists","Slicing last 30 / 90 / 365 days","Boolean: prices above ATH"]},
+     {icon:"⚡",name:"Array operations",subs:["Vectorised arithmetic","Broadcasting on OHLCV","BTC → USD conversion"]},
+     {icon:"📈",name:"Statistical functions",subs:["mean, std, median on returns","np.percentile() for VaR","np.corrcoef() price vs hash rate"]},
+     {icon:"🔢",name:"Matrix operations",subs:["Correlation matrix","np.linalg covariance","Copies vs views"]},
+     {icon:"🔍",name:"Logical functions",subs:["np.where() for signals","np.isnan() data quality","np.any() / np.all()"]},
+   ],
+   btc:"4-year daily BTC price array. Rolling 30d volatility. Sharpe ratio calculation. Correlation matrix: price vs hash rate vs difficulty vs active addresses.",
+   apis:["CoinGecko /market_chart","blockchain.info/charts"],
+   code:`<span class="c-kw">import</span> numpy <span class="c-kw">as</span> np\n\n<span class="c-cm"># Daily log returns — the standard for financial time series</span>\nlog_returns = np.<span class="c-fn">log</span>(prices[<span class="c-num">1</span>:] / prices[:-<span class="c-num">1</span>])\n\n<span class="c-cm"># Annualised volatility</span>\nvol = np.<span class="c-fn">std</span>(log_returns) * np.<span class="c-fn">sqrt</span>(<span class="c-num">365</span>)\n<span class="c-fn">print</span>(<span class="c-st">f"BTC annualised vol: <span style="color:var(--gold)">{</span>vol*<span class="c-num">100</span>:.1f<span style="color:var(--gold)">}</span>%"</span>)\n\n<span class="c-cm"># Value at Risk (95% confidence)</span>\nvar_95 = np.<span class="c-fn">percentile</span>(log_returns, <span class="c-num">5</span>)\n<span class="c-fn">print</span>(<span class="c-st">f"Daily VaR 95%: <span style="color:var(--gold)">{</span>var_95*<span class="c-num">100</span>:.2f<span style="color:var(--gold)">}</span>%"</span>)`
+  },
+  {num:3,phase:1,name:"Pandas — Data Analysis",status:"upcoming",
+   desc:"Full Bitcoin OHLCV DataFrame from inception. Halving-era GroupBy. Merge price with hash rate and mempool data. Rolling 200-day MA, RSI, Bollinger Bands.",
+   topics:[
+     {icon:"📋",name:"Core concepts",subs:["DataFrame & Series","OHLCV data loading","DatetimeIndex for time-series"]},
+     {icon:"🔧",name:"Data operations",subs:["Filtering & masking","GroupBy halving eras","Merge: price + on-chain"]},
+     {icon:"🕐",name:"Time handling",subs:["pd.to_datetime() block timestamps","resample() weekly/monthly","UTC timezone for all data"]},
+     {icon:"📉",name:"Statistical tools",subs:["rolling(30).mean() — 30d MA","pct_change() daily returns","describe() OHLCV summary","ewm() for EMAs"]},
+     {icon:"🔤",name:"Text operations",subs:["str.startswith('1') address type","str.len() hash validation","str.contains() SegWit filter"]},
+   ],
+   btc:"Full Bitcoin OHLCV from 2010 to present. GroupBy halving era for return analysis. 200-day MA golden/death cross signals. RSI and Bollinger Bands.",
+   apis:["CoinGecko /ohlc","Glassnode free","mempool.space"],
+   code:`<span class="c-kw">import</span> pandas <span class="c-kw">as</span> pd\n\n<span class="c-cm"># Load OHLCV and set DatetimeIndex</span>\ndf = pd.<span class="c-fn">DataFrame</span>(ohlcv_data, columns=[<span class="c-st">"time","open","high","low","close","volume"</span>])\ndf[<span class="c-st">"time"</span>] = pd.<span class="c-fn">to_datetime</span>(df[<span class="c-st">"time"</span>], unit=<span class="c-st">"ms"</span>)\ndf.<span class="c-fn">set_index</span>(<span class="c-st">"time"</span>, inplace=<span class="c-kw">True</span>)\n\n<span class="c-cm"># 200-day moving average — the most-watched Bitcoin signal</span>\ndf[<span class="c-st">"ma_200"</span>] = df[<span class="c-st">"close"</span>].<span class="c-fn">rolling</span>(<span class="c-num">200</span>).<span class="c-fn">mean</span>()\ndf[<span class="c-st">"signal"</span>] = (df[<span class="c-st">"close"</span>] > df[<span class="c-st">"ma_200"</span>]).<span class="c-fn">map</span>({<span class="c-kw">True</span>:<span class="c-st">"BULL"</span>,<span class="c-kw">False</span>:<span class="c-st">"BEAR"</span>})`
+  },
+  {num:4,phase:1,name:"Matplotlib & Seaborn",status:"upcoming",
+   desc:"Publication-quality BTC price chart 2009–present with halving overlays. Fee rate heatmap. On-chain correlation dashboard. Returns distribution showing fat tails.",
+   topics:[
+     {icon:"📈",name:"Line & candlestick charts",subs:["Price from 2009 (log scale)","Halving date overlays","mplfinance candlestick OHLCV"]},
+     {icon:"📊",name:"Distribution plots",subs:["Daily returns histogram","Hash rate distribution by era","Fee heatmap: hour × weekday"]},
+     {icon:"🔵",name:"Relationship plots",subs:["Scatter price vs hash rate","Seaborn pairplot on-chain","Correlation heatmap"]},
+     {icon:"📟",name:"Multi-panel dashboards",subs:["4-panel: price, vol, hashrate, diff","Shared x-axis subplots","Twin axes: USD + dominance"]},
+     {icon:"✏️",name:"Styling & annotation",subs:["plt.axvline() halvings","plt.annotate() ATH labels","Dark publication theme"]},
+   ],
+   btc:"Full price chart 2009–present with halving epoch overlays. Fee rate heatmap. On-chain 4-panel dashboard. Returns fat-tail vs normal comparison.",
+   apis:["CoinGecko","blockchain.info/charts","yfinance"],
+   code:`<span class="c-kw">import</span> matplotlib.pyplot <span class="c-kw">as</span> plt\n\nfig, axes = plt.<span class="c-fn">subplots</span>(<span class="c-num">2</span>, <span class="c-num">1</span>, figsize=(<span class="c-num">14</span>, <span class="c-num">8</span>), sharex=<span class="c-kw">True</span>)\n\naxes[<span class="c-num">0</span>].<span class="c-fn">semilogy</span>(df.index, df[<span class="c-st">"close"</span>], color=<span class="c-st">"#f7b731"</span>, lw=<span class="c-num">1.2</span>)\n\n<span class="c-cm"># Add halving epoch shading</span>\n<span class="c-kw">for</span> date <span class="c-kw">in</span> HALVING_DATES:\n    axes[<span class="c-num">0</span>].<span class="c-fn">axvline</span>(date, color=<span class="c-st">"#00c9a7"</span>, alpha=<span class="c-num">0.6</span>, ls=<span class="c-st">"--"</span>, lw=<span class="c-num">0.8</span>)\n\naxes[<span class="c-num">0</span>].<span class="c-fn">set_title</span>(<span class="c-st">"Bitcoin Price (log) — Genesis to Present"</span>)`
+  },
+  {num:5,phase:2,name:"SQL & NoSQL Databases",status:"upcoming",
+   desc:"Build a complete Bitcoin data warehouse. Supabase Postgres for OHLCV. MongoDB for raw API JSON. ETL pipeline ingesting new blocks every 10 minutes.",
+   topics:[
+     {icon:"🗄️",name:"Relational SQL (Supabase)",subs:["Schema: blocks, transactions, prices","INSERT daily OHLCV","SELECT with JOINs","Indexes on height & timestamp"]},
+     {icon:"🍃",name:"NoSQL (MongoDB Atlas)",subs:["Store raw blockchain.info JSON","Flexible schema for tx fields","Aggregation pipelines","Atlas Search for tx hash"]},
+     {icon:"🔄",name:"ETL pipeline",subs:["Extract: poll API every 10 min","Transform: normalise & parse","Load: upsert no duplicates","Schedule with APScheduler"]},
+   ],
+   btc:"Bitcoin data warehouse: Supabase for OHLCV + metrics, MongoDB for raw responses. Automated ETL pipeline polling blockchain APIs.",
+   apis:["blockchain.info","Supabase","MongoDB Atlas"],
+   code:`<span class="c-kw">from</span> supabase <span class="c-kw">import</span> create_client\n<span class="c-kw">import</span> os\n\nsupabase = <span class="c-fn">create_client</span>(\n    os.<span class="c-fn">getenv</span>(<span class="c-st">"SUPABASE_URL"</span>),\n    os.<span class="c-fn">getenv</span>(<span class="c-st">"SUPABASE_KEY"</span>)\n)\n\n<span class="c-cm"># Upsert OHLCV row — no duplicates on timestamp</span>\nsupabase.table(<span class="c-st">"btc_ohlcv"</span>)<span class="c-fn">.upsert</span>({\n    <span class="c-st">"timestamp"</span>: <span class="c-st">"2024-04-20"</span>,\n    <span class="c-st">"open_usd"</span>: <span class="c-num">63500.0</span>,\n    <span class="c-st">"close_usd"</span>: <span class="c-num">64200.0</span>,\n    <span class="c-st">"halving_era"</span>: <span class="c-num">4</span>\n}, on_conflict=<span class="c-st">"timestamp"</span>).<span class="c-fn">execute</span>()`
+  },
+  {num:6,phase:2,name:"Streamlit — Data Apps",status:"upcoming",
+   desc:"Deploy a live Bitcoin analytics dashboard with real-time price, portfolio P&L tracker, on-chain health indicators, and halving countdown.",
+   topics:[
+     {icon:"🖥️",name:"App fundamentals",subs:["st.metric, st.dataframe","Sidebar filters & selectors","st.plotly_chart interactive"]},
+     {icon:"🔄",name:"State & live data",subs:["st.session_state portfolio","st.cache_data API caching","st.rerun() every 60s"]},
+     {icon:"📟",name:"Dashboard build",subs:["Live price metrics panel","Portfolio P&L tracker","On-chain health score","Halving countdown widget"]},
+   ],
+   btc:"Live Bitcoin analytics dashboard. Real-time price, portfolio P&L, on-chain health, mempool congestion, halving countdown — all in one deployable Streamlit app.",
+   apis:["CoinGecko","blockchain.info","mempool.space"],
+   code:`<span class="c-kw">import</span> streamlit <span class="c-kw">as</span> st\n<span class="c-kw">import</span> requests\n\nst.<span class="c-fn">title</span>(<span class="c-st">"⚡ Bitcoin Live Dashboard"</span>)\n\n@st.<span class="c-fn">cache_data</span>(ttl=<span class="c-num">60</span>)  <span class="c-cm"># refresh every 60s</span>\n<span class="c-kw">def</span> <span class="c-fn">get_price</span>():\n    <span class="c-kw">return</span> requests.<span class="c-fn">get</span>(\n        <span class="c-st">"https://api.coingecko.com/api/v3/simple/price"</span>\n        <span class="c-st">"?ids=bitcoin&vs_currencies=usd"</span>\n    ).<span class="c-fn">json</span>()[<span class="c-st">"bitcoin"</span>][<span class="c-st">"usd"</span>]\n\nprice = <span class="c-fn">get_price</span>()\nst.<span class="c-fn">metric</span>(<span class="c-st">"BTC / USD"</span>, <span class="c-st">f"$<span style="color:var(--gold)">{</span>price:,.0f<span style="color:var(--gold)">}</span>"</span>)`
+  },
+  {num:7,phase:3,name:"Statistics Foundations",status:"upcoming",
+   desc:"Full statistical profile of Bitcoin returns 2011–present. Prove fat tails. Correlation of price with hash rate, difficulty, and active addresses.",
+   topics:[
+     {icon:"📐",name:"Central tendency",subs:["Mean, median, mode of returns","Geometric mean for CAGR","Why median beats mean for BTC"]},
+     {icon:"📏",name:"Dispersion & volatility",subs:["Variance & std of returns","Annualised: std × √252","IQR for fee outlier detection"]},
+     {icon:"🌊",name:"Distributions",subs:["Normal vs fat-tailed returns","Log-normal price distribution","Poisson: block arrival times"]},
+     {icon:"🎯",name:"Correlation",subs:["P(BTC up in halving month)","Pearson: price vs hash rate","Spearman: non-linear on-chain"]},
+     {icon:"🏹",name:"Estimation",subs:["95% CI for mean daily return","Bootstrap resampling","Point estimates: block time"]},
+   ],
+   btc:"Statistical proof that Bitcoin returns have fat tails. Correlation analysis: price vs hash rate vs difficulty vs active addresses across all halving eras.",
+   apis:["CoinGecko /market_chart","Glassnode free tier"],
+   code:`<span class="c-kw">from</span> scipy <span class="c-kw">import</span> stats\n<span class="c-kw">import</span> numpy <span class="c-kw">as</span> np\n\n<span class="c-cm"># Test if BTC returns are normally distributed</span>\nstat, p_value = stats.<span class="c-fn">normaltest</span>(log_returns)\n<span class="c-fn">print</span>(<span class="c-st">f"Normal test p-value: <span style="color:var(--gold)">{</span>p_value:.6f<span style="color:var(--gold)">}</span>"</span>)\n<span class="c-fn">print</span>(<span class="c-st">f"Reject normality: <span style="color:var(--gold)">{</span>p_value < <span class="c-num">0.05</span><span style="color:var(--gold)">}</span>"</span>)\n\n<span class="c-cm"># Excess kurtosis — how fat are the tails?</span>\nkurt = stats.<span class="c-fn">kurtosis</span>(log_returns)\n<span class="c-fn">print</span>(<span class="c-st">f"Excess kurtosis: <span style="color:var(--gold)">{</span>kurt:.2f<span style="color:var(--gold)">}</span> (normal=0)"</span>)`
+  },
+  {num:8,phase:3,name:"Advanced Statistics",status:"upcoming",
+   desc:"Hypothesis test: do BTC returns differ significantly across halving eras? Bayesian bull/bear regime probability. Chi-square on seasonal volume patterns.",
+   topics:[
+     {icon:"🧪",name:"Hypothesis testing",subs:["t-test: Q4 vs other quarters","Mann-Whitney: pre vs post-halving","p-values & significance"]},
+     {icon:"🎲",name:"Bayesian statistics",subs:["Prior beliefs on price trajectory","Update with on-chain data","Regime detection: bull vs bear"]},
+     {icon:"🔲",name:"Chi-square tests",subs:["Weekend vs weekday volume","Goodness-of-fit: normality","SegWit adoption vs fee reduction"]},
+   ],
+   btc:"Hypothesis test on halving era returns. Bayesian regime probability model. Chi-square seasonal volume analysis.",
+   apis:["CoinGecko","blockchain.info/charts"],
+   code:`<span class="c-kw">from</span> scipy.stats <span class="c-kw">import</span> mannwhitneyu\n\n<span class="c-cm"># H0: pre-halving and post-halving returns are the same</span>\npre_returns  = df[df[<span class="c-st">"days_to_halving"</span>] > <span class="c-num">0</span>][<span class="c-st">"return"</span>]\npost_returns = df[df[<span class="c-st">"days_to_halving"</span>] <= <span class="c-num">0</span>][<span class="c-st">"return"</span>]\n\nstat, p = <span class="c-fn">mannwhitneyu</span>(pre_returns, post_returns, alternative=<span class="c-st">"two-sided"</span>)\n<span class="c-fn">print</span>(<span class="c-st">f"Mann-Whitney p={p:.4f} — reject H0: <span style="color:var(--gold)">{</span>p<<span class="c-num">0.05</span><span style="color:var(--gold)">}</span>"</span>)`
+  },
+  {num:9,phase:3,name:"Feature Engineering",status:"upcoming",
+   desc:"Engineer 40+ features from raw Bitcoin data: technical indicators (RSI, MACD, BB), on-chain metrics (NVT, exchange flows), and macro (DXY, gold correlation).",
+   topics:[
+     {icon:"🧹",name:"Data cleaning",subs:["Handle exchange downtime gaps","Flash crash outlier treatment","Multi-source timestamp alignment"]},
+     {icon:"⚗️",name:"Feature transformation",subs:["Log returns: log(p_t/p_{t-1})","MinMax: hash rate normalisation","Lag features: 1d, 7d, 30d, era","Rolling: 7/30/90/200d windows"]},
+     {icon:"🎯",name:"Feature selection",subs:["Correlation filter: multicollinear","Mutual information: non-linear","Variance threshold: near-constant","RFE for price prediction"]},
+   ],
+   btc:"40+ feature matrix: RSI, MACD, Bollinger, NVT ratio, active addresses, exchange flows, DXY, gold. The dataset that trains all ML models in M11 and M12.",
+   apis:["CoinGecko","Glassnode","FRED API"],
+   code:`<span class="c-kw">import</span> pandas <span class="c-kw">as</span> pd\n\n<span class="c-cm"># RSI — Relative Strength Index</span>\n<span class="c-kw">def</span> <span class="c-fn">rsi</span>(series, window=<span class="c-num">14</span>):\n    delta = series.<span class="c-fn">diff</span>()\n    gain  = delta.<span class="c-fn">clip</span>(lower=<span class="c-num">0</span>).<span class="c-fn">rolling</span>(window).<span class="c-fn">mean</span>()\n    loss  = (-delta.<span class="c-fn">clip</span>(upper=<span class="c-num">0</span>)).<span class="c-fn">rolling</span>(window).<span class="c-fn">mean</span>()\n    rs    = gain / loss\n    <span class="c-kw">return</span> <span class="c-num">100</span> - (<span class="c-num">100</span> / (<span class="c-num">1</span> + rs))\n\ndf[<span class="c-st">"rsi_14"</span>] = <span class="c-fn">rsi</span>(df[<span class="c-st">"close"</span>])\ndf[<span class="c-st">"is_oversold"</span>] = (df[<span class="c-st">"rsi_14"</span>] < <span class="c-num">30</span>).<span class="c-fn">astype</span>(int)`
+  },
+  {num:10,phase:3,name:"Exploratory Data Analysis",status:"upcoming",
+   desc:"Deep EDA on the full Bitcoin dataset. Uncover the 4-year halving cycle. Identify leading on-chain indicators that precede price moves. Whale behaviour patterns.",
+   topics:[
+     {icon:"🔍",name:"EDA fundamentals",subs:["Shape, dtypes, missing audit","Univariate on-chain metrics","Bivariate feature heatmap","Time-series decomposition"]},
+     {icon:"📚",name:"Bitcoin case studies",subs:["Halving cycle anatomy","Accumulation → euphoria → capitulation","Whale wallet clustering","Mempool congestion analysis"]},
+   ],
+   btc:"Full EDA revealing the 4-year halving cycle structure. Leading on-chain indicators: MVRV ratio, exchange reserves, whale accumulation scores.",
+   apis:["CoinGecko","blockchain.info","mempool.space","Glassnode"],
+   code:`<span class="c-kw">import</span> pandas <span class="c-kw">as</span> pd\n<span class="c-kw">import</span> matplotlib.pyplot <span class="c-kw">as</span> plt\n<span class="c-kw">from</span> statsmodels.tsa.seasonal <span class="c-kw">import</span> seasonal_decompose\n\n<span class="c-cm"># Decompose BTC price into trend + seasonal + residual</span>\nresult = <span class="c-fn">seasonal_decompose</span>(\n    df[<span class="c-st">"log_price"</span>], model=<span class="c-st">"additive"</span>, period=<span class="c-num">365</span>\n)\nresult.<span class="c-fn">plot</span>()  <span class="c-cm"># reveals 4-year halving cycle structure</span>`
+  },
+  {num:11,phase:3,name:"Machine Learning",status:"upcoming",
+   desc:"Train a BTC direction classifier using 40 engineered features. Walk-forward backtest 2017–2024. Compare vs buy-and-hold benchmark.",
+   topics:[
+     {icon:"📉",name:"Regression",subs:["Linear: next-day price","Ridge/Lasso regularised","Polynomial non-linear","Walk-forward validation"]},
+     {icon:"🔀",name:"Classification",subs:["Predict up/down tomorrow","Logistic with on-chain features","Decision tree signals","Confusion matrix, F1"]},
+     {icon:"🔷",name:"SVM",subs:["Bull/bear classification","RBF kernel non-linear","GridSearchCV tuning"]},
+     {icon:"🌳",name:"Other supervised",subs:["KNN similar market conditions","Naive Bayes sentiment","Feature importance"]},
+   ],
+   btc:"BTC direction classifier (up/down tomorrow). Walk-forward backtest 2017–2024 with 40 features. Logistic regression, decision tree, and SVM compared.",
+   apis:["CoinGecko","Glassnode","engineered features M9"],
+   code:`<span class="c-kw">from</span> sklearn.linear_model <span class="c-kw">import</span> LogisticRegression\n<span class="c-kw">from</span> sklearn.model_selection <span class="c-kw">import</span> TimeSeriesSplit\n\nX = df[FEATURE_COLS].dropna()\ny = (df[<span class="c-st">"close"</span>].<span class="c-fn">shift</span>(-<span class="c-num">1</span>) > df[<span class="c-st">"close"</span>]).<span class="c-fn">astype</span>(int)\n\n<span class="c-cm"># Walk-forward — no data leakage into future</span>\ntscv = <span class="c-fn">TimeSeriesSplit</span>(n_splits=<span class="c-num">5</span>)\n<span class="c-kw">for</span> train_idx, test_idx <span class="c-kw">in</span> tscv.<span class="c-fn">split</span>(X):\n    model = <span class="c-fn">LogisticRegression</span>().<span class="c-fn">fit</span>(X.iloc[train_idx], y.iloc[train_idx])\n    score = model.<span class="c-fn">score</span>(X.iloc[test_idx], y.iloc[test_idx])\n    <span class="c-fn">print</span>(<span class="c-st">f"Accuracy: <span style="color:var(--gold)">{</span>score:.1%<span style="color:var(--gold)">}</span>"</span>)`
+  },
+  {num:12,phase:3,name:"Ensemble & Advanced ML",status:"upcoming",
+   desc:"XGBoost ensemble with SHAP explainability. K-Means regime clustering (bull/bear/accumulation/distribution). DBSCAN anomaly detection for whale movements.",
+   topics:[
+     {icon:"🪵",name:"Ensemble concepts",subs:["Bagging: reduce variance","Random Forest feature importance","Voting ensemble"]},
+     {icon:"🚀",name:"Boosting algorithms",subs:["XGBoost BTC direction","LightGBM large datasets","CatBoost categorical features","SHAP explainability"]},
+     {icon:"🔵",name:"Unsupervised learning",subs:["K-Means: market regimes","DBSCAN: anomaly detection","PCA: 40 → principal components","t-SNE: regime visualisation"]},
+   ],
+   btc:"XGBoost price prediction with full SHAP waterfall plots. K-Means identifies 4 market regimes. DBSCAN detects whale on-chain anomalies.",
+   apis:["CoinGecko","Glassnode","all engineered features"],
+   code:`<span class="c-kw">import</span> xgboost <span class="c-kw">as</span> xgb\n<span class="c-kw">import</span> shap\n\nmodel = xgb.<span class="c-fn">XGBClassifier</span>(n_estimators=<span class="c-num">300</span>, learning_rate=<span class="c-num">0.05</span>)\nmodel.<span class="c-fn">fit</span>(X_train, y_train, eval_set=[(X_val, y_val)], early_stopping_rounds=<span class="c-num">20</span>)\n\n<span class="c-cm"># SHAP values — why did the model predict what it predicted?</span>\nexplainer   = shap.<span class="c-fn">TreeExplainer</span>(model)\nshap_values = explainer.<span class="c-fn">shap_values</span>(X_test)\nshap.<span class="c-fn">summary_plot</span>(shap_values, X_test)  <span class="c-cm"># top features revealed</span>`
+  },
+];
+
+const FUTURE = [
+  {num:13,name:"NLP for Machine Learning",desc:"Crypto Twitter sentiment analysis with VADER and BERT. News headline impact on price. Text preprocessing pipeline for blockchain data."},
+  {num:14,name:"Deep Learning Foundations",desc:"Perceptron, ANN, LSTM for BTC price time series. Overfitting, dropout, batch normalisation on financial data."},
+  {num:15,name:"Advanced Deep Learning (NLP)",desc:"LSTM price forecasting, Attention mechanisms, Transformers for sequence prediction on OHLCV."},
+  {num:16,name:"Generative AI",desc:"Synthetic on-chain data generation. AI-generated market reports and analysis summaries."},
+  {num:17,name:"Vector Databases",desc:"Embed Bitcoin whitepapers, Satoshi emails, and research papers. Semantic search over blockchain documentation."},
+  {num:18,name:"RAG Systems",desc:"Q&A over full Bitcoin Core source code and documentation using Retrieval-Augmented Generation."},
+  {num:19,name:"LangChain",desc:"LangChain pipeline for automated Bitcoin market analysis: fetch → analyse → summarise → alert."},
+  {num:20,name:"Agentic AI",desc:"First Bitcoin autonomous agent: monitors mempool, detects anomalies, generates reports without human prompting."},
+  {num:21,name:"LangGraph Fundamentals",desc:"Stateful workflow: price check → on-chain analysis → news sentiment → trading signal generation."},
+  {num:22,name:"State Management",desc:"Persistent agent memory across sessions. Remember previous market analyses. Accumulate Bitcoin domain knowledge."},
+  {num:23,name:"Human-in-the-Loop",desc:"Approval workflows for high-confidence trading signals. Human feedback integration for model improvement."},
+  {num:24,name:"Agentic RAG",desc:"Self-RAG that retrieves relevant historical Bitcoin context before answering market analysis queries."},
+  {num:25,name:"Model Context Protocol",desc:"MCP server exposing Bitcoin data tools: price, blocks, mempool, on-chain metrics as structured context."},
+  {num:26,name:"Multi-Agent Systems",desc:"Full multi-agent Bitcoin research system: data agent + analysis agent + report agent + deployment pipeline."},
+];
+
+/* ────────────────────────────────────────────────
+   NAVIGATION
+──────────────────────────────────────────────── */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
+  const nl=document.querySelector(`.nav-link[onclick="showPage('${id}')"]`);
+  if(nl)nl.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showModule(num){
+  const mod=MODULES.find(m=>m.num===num)||FUTURE.find(m=>m.num===num);
+  if(!mod)return;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-module').classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
+  const sbi=document.querySelector(`.sb-item[onclick="showModule(${num})"]`);
+  if(sbi)sbi.classList.add('active');
+  renderModuleDetail(mod);
+  window.scrollTo(0,0);
+}
+
+/* ────────────────────────────────────────────────
+   RENDER MODULE DETAIL
+──────────────────────────────────────────────── */
+function renderModuleDetail(mod){
+  const phaseName=['','Phase 1 — Foundations','Phase 2 — Storage & Apps','Phase 3 — Statistics & ML'][mod.phase||1];
+  const topicsHtml=(mod.topics||[]).map(t=>`
+    <div class="topic-card">
+      <div class="topic-card-title"><span class="topic-card-icon" style="background:var(--surface2)">${t.icon}</span>${t.name}</div>
+      <ul class="sub-list">${t.subs.map(s=>`<li>${s}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+
+  document.getElementById('module-detail-content').innerHTML=`
+    <div class="breadcrumb">
+      <span onclick="showPage('home')">Home</span>
+      <span class="sep">/</span>
+      <span onclick="showPage('phase${mod.phase||1}')">${phaseName}</span>
+      <span class="sep">/</span>
+      Module ${mod.num}
+    </div>
+    <div class="detail-header">
+      <div class="detail-meta">
+        <span class="mod-badge ${mod.status==='done'?'badge-done':mod.status==='next'?'badge-next':'badge-up'}">${mod.status||'upcoming'}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Module ${mod.num} of 26</span>
+      </div>
+      <div class="detail-title">Module ${mod.num} — ${mod.name}</div>
+      <div class="detail-desc">${mod.desc||''}</div>
+      ${mod.btc?`<div class="deliverable-box"><div class="deliverable-label">Bitcoin project deliverable</div><div class="deliverable-text">${mod.btc}</div></div>`:''}
+      ${mod.apis?`<div class="tag-row" style="margin-top:.75rem">${mod.apis.map(a=>`<span class="tag" style="color:var(--text3);border-color:var(--border);font-family:var(--mono);font-size:10px">${a}</span>`).join('')}</div>`:''}
+    </div>
+    ${mod.topics?`<h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:1rem">Topics & sub-topics</h3><div class="topics-grid">${topicsHtml}</div>`:''}
+    ${mod.code?`<h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin:1.5rem 0 .75rem">Code preview</h3><div class="code-block">${mod.code}</div>`:''}
+    <div style="margin-top:1.5rem;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-primary" onclick="alert('Download the notebook from the GitHub repo — see Setup & Deploy page.')">Download notebook</button>
+      ${mod.num<26?`<button class="btn-secondary" onclick="showModule(${mod.num+1})">Next: Module ${mod.num+1} →</button>`:''}
+      ${mod.num>0?`<button class="btn-secondary" onclick="showModule(${mod.num-1})">← Module ${mod.num-1}</button>`:''}
+    </div>
+  `;
+}
+
+/* ────────────────────────────────────────────────
+   RENDER MODULE GRIDS
+──────────────────────────────────────────────── */
+function renderGrid(containerId, mods){
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=mods.map(m=>`
+    <div class="mod-card ${m.status}" onclick="showModule(${m.num})">
+      <div class="mod-card-head">
+        <div><div class="mod-num">Module ${m.num}</div></div>
+        <span class="mod-badge ${m.status==='done'?'badge-done':m.status==='next'?'badge-next':'badge-up'}">${m.status||'upcoming'}</span>
+      </div>
+      <div class="mod-title">${m.name}</div>
+      <div class="mod-desc">${m.desc.slice(0,110)}…</div>
+      <div class="mod-apis">${(m.apis||[]).map(a=>`<span class="api-pill">${a}</span>`).join('')}</div>
+      <div class="mod-card-footer">
+        <div class="topics-count">${(m.topics||[]).length} topics</div>
+        <div class="open-btn">Open →</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ────────────────────────────────────────────────
+   HOME — PHASE OVERVIEW
+──────────────────────────────────────────────── */
+function renderHomeOverview(){
+  const phases=[
+    {num:1,label:'Python & data foundations',range:'Modules 0–4',color:'var(--gold)',mods:MODULES.filter(m=>m.phase===1)},
+    {num:2,label:'Storage & apps',range:'Modules 5–6',color:'var(--teal)',mods:MODULES.filter(m=>m.phase===2)},
+    {num:3,label:'Statistics & machine learning',range:'Modules 7–12',color:'var(--coral)',mods:MODULES.filter(m=>m.phase===3)},
+  ];
+  const el=document.getElementById('phase-overview');
+  el.innerHTML=phases.map(ph=>`
+    <div style="margin-bottom:2.5rem">
+      <div class="phase-band" style="border-color:${ph.color}33;background:${ph.color}08">
+        <span class="phase-num" style="color:var(--text3)">PHASE ${ph.num}</span>
+        <span class="phase-name" style="color:${ph.color}">${ph.label}</span>
+        <span class="phase-range">${ph.range}</span>
+      </div>
+      <div class="module-grid">${ph.mods.map(m=>`
+        <div class="mod-card ${m.status}" onclick="showModule(${m.num})">
+          <div class="mod-card-head">
+            <div class="mod-num">M${m.num}</div>
+            <span class="mod-badge ${m.status==='done'?'badge-done':m.status==='next'?'badge-next':'badge-up'}">${m.status}</span>
+          </div>
+          <div class="mod-title">${m.name}</div>
+          <div class="mod-desc">${m.desc.slice(0,90)}…</div>
+          <div class="mod-card-footer"><div class="topics-count">${(m.topics||[]).length} topics</div><div class="open-btn">Open →</div></div>
+        </div>
+      `).join('')}</div>
+    </div>
+  `).join('');
+}
+
+/* ────────────────────────────────────────────────
+   LIVE DATA
+──────────────────────────────────────────────── */
+async function fetchLiveData(){
+  try{
+    const [priceData, statsData]=await Promise.all([
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,sgd&include_24hr_change=true&include_market_cap=true').then(r=>r.json()),
+      fetch('https://blockchain.info/stats?format=json').then(r=>r.json())
+    ]);
+    const btc=priceData.bitcoin;
+    const price=btc.usd;
+    const chg=btc.usd_24h_change;
+    const mcap=(btc.usd_market_cap/1e12).toFixed(2);
+    const height=statsData.n_blocks_total;
+    const ehs=(statsData.hash_rate/1e6).toFixed(1);
+    const diff=(statsData.difficulty/1e12).toFixed(1)+'T';
+    const txs=statsData.n_tx.toLocaleString();
+
+    document.getElementById('ticker').textContent=`BTC $${price.toLocaleString()}  ${chg>=0?'+':''}${chg.toFixed(1)}%`;
+    const p=document.getElementById('d-price');
+    if(p){p.textContent='$'+price.toLocaleString();p.className='metric-val '+(chg>=0?'up':'dn')}
+    setText('d-24h',(chg>=0?'+':'')+chg.toFixed(2)+'% 24h');
+    setText('d-mcap','$'+mcap+'T');
+    setText('d-height',height.toLocaleString());
+    setText('d-hash',ehs+' EH/s');
+    setText('d-diff',diff);
+    setText('d-tx',txs);
+    setText('h-blockheight',height.toLocaleString());
+    setText('h-price','$'+Math.round(price/1000)+'k');
+
+    // Halving countdown
+    const halvingInterval=210000;
+    const halvings=Math.floor(height/halvingInterval);
+    const blocksToNext=halvingInterval-(height%halvingInterval);
+    const daysToNext=(blocksToNext*10/60/24).toFixed(0);
+    const hs=document.getElementById('halving-section');
+    if(hs){hs.innerHTML=`
+      <div class="metrics-row">
+        <div class="metric"><div class="metric-label">Halvings so far</div><div class="metric-val neutral">${halvings}</div><div class="metric-sub">out of ~33 total</div></div>
+        <div class="metric"><div class="metric-label">Blocks to next</div><div class="metric-val" style="color:var(--gold)">${blocksToNext.toLocaleString()}</div><div class="metric-sub">~${daysToNext} days</div></div>
+        <div class="metric"><div class="metric-label">Current reward</div><div class="metric-val neutral">${(50/Math.pow(2,halvings)).toFixed(4)} BTC</div><div class="metric-sub">per block</div></div>
+        <div class="metric"><div class="metric-label">Block time</div><div class="metric-val neutral">${statsData.minutes_between_blocks?statsData.minutes_between_blocks.toFixed(2):'10.00'} min</div><div class="metric-sub">recent average</div></div>
+      </div>
+    `}
+  }catch(e){
+    document.getElementById('ticker').textContent='BTC — offline';
+  }
+}
+
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+function copyCode(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='copied!';setTimeout(()=>btn.textContent='copy',2000)});
+}
+
+/* ────────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────────── */
+renderHomeOverview();
+renderGrid('grid-phase1',MODULES.filter(m=>m.phase===1));
+renderGrid('grid-phase2',MODULES.filter(m=>m.phase===2));
+renderGrid('grid-phase3',MODULES.filter(m=>m.phase===3));
+renderGrid('grid-future',FUTURE.map(m=>({...m,phase:4,status:'upcoming',topics:[],apis:[]})));
+fetchLiveData();
+setInterval(fetchLiveData,60000);
+</script>
+</body>
+</html>
