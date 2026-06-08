@@ -996,6 +996,94 @@ function copyCode(btn,text){
   navigator.clipboard.writeText(text).then(()=>{btn.textContent='copied!';setTimeout(()=>btn.textContent='copy',2000)});
 }
 
+
+/* ────────────────────────────────────────────────
+   NOTEBOOK DOWNLOAD — generates real .ipynb in browser
+──────────────────────────────────────────────── */
+const NOTEBOOK_CELLS = {
+  0: [
+    {type:"markdown", src:"# 🔗 Module 0 — Python Foundations for Bitcoin Blockchain Data Science\n\n> **Project**: AI-Powered Blockchain Analytics — Bitcoin from Genesis to Present  \n> **Stack**: Python · CoinGecko API · Blockchain.info API · Pandas · NumPy · AI  \n> **Goal**: Every Python concept anchored to *real* Bitcoin data — no toy examples.\n\n| Concept | Bitcoin Context |\n|---|---|\n| Variables | Store BTC price, block height, hash rate |\n| Data Types | Satoshis (int), prices (float), addresses (str), validity (bool) |\n| Comments | Document blockchain logic |\n| Type Casting | Convert Satoshis ↔ BTC ↔ USD |\n| Operators | Calculate P&L, mining profitability, CAGR |"},
+    {type:"markdown", src:"## ⚙️ Setup\n\nWe use **free, no-API-key** endpoints for all data in this module."},
+    {type:"code", src:"import requests\nimport json\nfrom datetime import datetime\n\nprint('✅ Libraries ready for Bitcoin data fetching!')"},
+    {type:"markdown", src:"---\n# 📦 Section 1 — Variables\n\nIn programming, **variables** store data in RAM. The variable name holds the memory address of the value."},
+    {type:"code", src:"# ============================================================\n# LIVE DATA: Fetch current Bitcoin price from CoinGecko\n# Free API — no key required\n# ============================================================\n\nurl = \"https://api.coingecko.com/api/v3/simple/price\"\nparams = {\n    \"ids\": \"bitcoin\",\n    \"vs_currencies\": \"usd,sgd\",\n    \"include_24hr_change\": \"true\",\n    \"include_market_cap\": \"true\"\n}\n\nresponse = requests.get(url, params=params)\ndata = response.json()\n\nbtc_price_usd  = data[\"bitcoin\"][\"usd\"]\nbtc_price_sgd  = data[\"bitcoin\"][\"sgd\"]\nbtc_24h_change = data[\"bitcoin\"][\"usd_24h_change\"]\nbtc_market_cap = data[\"bitcoin\"][\"usd_market_cap\"]\n\nprint(f\"BTC/USD: ${btc_price_usd:,.2f}\")\nprint(f\"BTC/SGD: S${btc_price_sgd:,.2f}\")\nprint(f\"24h Change: {btc_24h_change:.2f}%\")\nprint(f\"Market Cap: ${btc_market_cap:,.0f}\")"},
+    {type:"code", src:"MAX_SUPPLY        = 21_000_000\nGENESIS_BLOCK_DATE = \"2009-01-03\"\nSATOSHIS_PER_BTC  = 100_000_000\nBLOCK_TIME_MINUTES = 10.0\n\nprint(\"Bitcoin Protocol Constants:\")\nprint(f\"  Max Supply     : {MAX_SUPPLY:,} BTC\")\nprint(f\"  Genesis Block  : {GENESIS_BLOCK_DATE}\")\nprint(f\"  Satoshis/BTC   : {SATOSHIS_PER_BTC:,}\")\nprint(f\"  Block Time     : {BLOCK_TIME_MINUTES} minutes\")"},
+    {type:"markdown", src:"---\n# 💬 Section 2 — Comments & Documentation"},
+    {type:"code", src:"# Single-line comment: use # for quick notes\n\ndef get_blockchain_stats():\n    \"\"\"\n    Fetches live Bitcoin network statistics from blockchain.info API.\n    Returns:\n        dict: Network stats including hash rate, difficulty, block height\n    Data Source:\n        https://blockchain.info/stats?format=json\n    \"\"\"\n    url = \"https://blockchain.info/stats?format=json\"\n    response = requests.get(url)\n    return response.json()\n\nstats = get_blockchain_stats()\nblock_height    = stats[\"n_blocks_total\"]\nhash_rate_gh    = stats[\"hash_rate\"]\ndifficulty      = stats[\"difficulty\"]\nbtc_mined_today = stats[\"n_btc_mined\"] / SATOSHIS_PER_BTC\ntransactions    = stats[\"n_tx\"]\n\nprint(\"📊 Bitcoin Network Status (Live)\")\nprint(f\"  Block Height      : {block_height:,}\")\nprint(f\"  Hash Rate         : {hash_rate_gh / 1_000_000:.2f} EH/s\")\nprint(f\"  Difficulty        : {difficulty:,.0f}\")\nprint(f\"  BTC Mined Today   : {btc_mined_today:.4f} BTC\")\nprint(f\"  Transactions Today: {transactions:,}\")"},
+    {type:"markdown", src:"---\n# 🔢 Section 3 — Bitcoin Data Types"},
+    {type:"code", src:"# int — Satoshis\nsatoshi_amount   = 5_000_000\ncurrent_block    = block_height\n\n# float — Prices\nbtc_holdings     = 0.00420\nportfolio_value  = btc_holdings * btc_price_usd\n\n# str — Addresses, hashes\ngenesis_tx_hash  = \"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b\"\nnetwork_name     = \"Bitcoin Mainnet\"\n\n# bool — Confirmation flags\nis_confirmed     = True\nis_segwit        = True\nis_coinbase      = False\n\nprint(\"Bitcoin Data Type Audit:\")\nprint(f\"  satoshi_amount  : {satoshi_amount:,}  → {type(satoshi_amount).__name__}\")\nprint(f\"  btc_holdings    : {btc_holdings}       → {type(btc_holdings).__name__}\")\nprint(f\"  portfolio_value : ${portfolio_value:,.2f}  → {type(portfolio_value).__name__}\")\nprint(f\"  network_name    : '{network_name}' → {type(network_name).__name__}\")\nprint(f\"  is_confirmed    : {is_confirmed}           → {type(is_confirmed).__name__}\")"},
+    {type:"markdown", src:"---\n# 🔄 Section 4 — Type Casting: Satoshis ↔ BTC ↔ USD"},
+    {type:"code", src:"# Step 1: raw satoshis (int)\nraw_sat = 546  # dust limit\nprint(f\"Step 1  raw_sat   : {raw_sat}  → {type(raw_sat).__name__}\")\n\n# Step 2: int → float: satoshis to BTC\nbtc_amount = float(raw_sat) / SATOSHIS_PER_BTC\nprint(f\"Step 2  btc_amount: {btc_amount:.8f}  → {type(btc_amount).__name__}\")\n\n# Step 3: BTC → USD\nusd_value = btc_amount * btc_price_usd\nprint(f\"Step 3  usd_value : {usd_value:.6f}  → {type(usd_value).__name__}\")\n\n# Step 4: float → str for display\ndisplay = f\"${usd_value:.4f}\"\nprint(f\"Step 4  display   : '{display}'  → {type(display).__name__}\")\n\n# Safe conversion: always round() before int()\nbtc_val = 0.9\nsafe_sat = int(round(btc_val * 100_000_000))\nprint(f\"\\nSafe : int(round(0.9 × 1e8)) = {safe_sat:,}\")\nprint(f\"Unsafe: int(0.9 × 1e8)       = {int(0.9 * 100_000_000):,}\")"},
+    {type:"markdown", src:"---\n# ➕ Section 5 — Operators: Bitcoin Math That Matters"},
+    {type:"code", src:"# + Addition: total block reward\nblock_subsidy_btc = 3.125\navg_fees_btc      = 0.15\ntotal_reward_btc  = block_subsidy_btc + avg_fees_btc\nprint(f\"+ Block Reward  : {block_subsidy_btc} + {avg_fees_btc} = {total_reward_btc} BTC\")\n\n# × Multiplication: reward in USD\nreward_usd = total_reward_btc * btc_price_usd\nprint(f\"× Reward USD   : {total_reward_btc} × ${btc_price_usd:,} = ${reward_usd:,.2f}\")\n\n# // Floor division: halvings so far\nhalf = block_height // 210_000\nprint(f\"// Halvings    : {block_height:,} // 210,000 = {half}\")\n\n# % Modulo: blocks to next halving\nblocks_to_next = 210_000 - (block_height % 210_000)\nprint(f\"% To Halving  : {blocks_to_next:,} blocks (~{blocks_to_next*10/60/24/365:.2f} years)\")\n\n# ** Exponent: current subsidy from first principles\ncalc_sub = 50.0 / (2 ** half)\nprint(f\"** Subsidy    : 50 / 2^{half} = {calc_sub} BTC\")"},
+    {type:"code", src:"# CAGR: Bitcoin vs stocks since 2011\nprice_2011    = 1.0\nyears         = 2025 - 2011\ncagr          = (btc_price_usd / price_2011) ** (1 / years) - 1\nhypothetical  = 1.0 * (1.10 ** years)\n\nprint(\"📊 Bitcoin CAGR Analysis\")\nprint(f\"  Price in 2011    : ${price_2011:.2f}\")\nprint(f\"  Price now        : ${btc_price_usd:,.2f}\")\nprint(f\"  CAGR since 2011  : {cagr*100:.1f}% per year\")\nprint(f\"  $1 at 10%/yr → ${hypothetical:.2f} (stocks)\")\nprint(f\"  $1 → ${btc_price_usd:,.2f} (Bitcoin actual)\")\nprint(f\"  Outperformance   : {btc_price_usd/hypothetical:,.0f}×\")"},
+    {type:"code", src:"# Halving schedule — all operators in one loop\nprint(f\"{'Era':>4} | {'Block range':^25} | {'Reward':>8} | {'Total BTC':>12}\")\nprint('-' * 60)\ntotal = 0.0\nfor era in range(34):\n    reward  = 50.0 / (2 ** era)\n    era_btc = reward * 210_000\n    total  += era_btc\n    start   = era * 210_000\n    end     = start + 210_000 - 1\n    marker  = \" ← now\" if era == half else \"\"\n    print(f\"  {era:>2}  | {start:>10,} – {end:>10,} | {reward:>6.4f} BTC | {total:>12,.2f}{marker}\")\n    if reward < 0.00000001: break"}
+  ],
+  1: [
+    {type:"markdown", src:"# 🔗 Module 1 — Advanced Python & OOP for Bitcoin Blockchain Data Science\n\n> Build BitcoinWallet, Transaction, SatoshiConverter, and BlockchainAnalyzer classes using real blockchain data."},
+    {type:"code", src:"import requests, json\nfrom datetime import datetime\n\nprint('✅ Module 1 — OOP for Bitcoin ready!')"},
+    {type:"markdown", src:"## Section 1 — SatoshiConverter (Static & Class Methods)"},
+    {type:"code", src:"class SatoshiConverter:\n    \"\"\"\n    Utility class for Bitcoin unit conversions.\n    No __init__ needed — all methods are static or class-level.\n    \"\"\"\n    DECIMALS  = 8\n    UNITS     = {\"sat\": 1, \"bit\": 100, \"mbtc\": 100_000, \"btc\": 100_000_000}\n\n    @staticmethod\n    def to_btc(satoshis: int) -> float:\n        return satoshis / 100_000_000\n\n    @staticmethod\n    def to_usd(satoshis: int, price_usd: float) -> float:\n        return (satoshis / 100_000_000) * price_usd\n\n    @classmethod\n    def summary(cls, satoshis: int, price_usd: float):\n        btc = cls.to_btc(satoshis)\n        usd = cls.to_usd(satoshis, price_usd)\n        return {\n            \"satoshis\": satoshis,\n            \"btc\":      round(btc, cls.DECIMALS),\n            \"usd\":      round(usd, 2)\n        }\n\nprint(SatoshiConverter.to_btc(5_000_000))\nprint(SatoshiConverter.summary(5_000_000, 104250))"},
+    {type:"markdown", src:"## Section 2 — Transaction (Core Data Model)"},
+    {type:"code", src:"class Transaction:\n    \"\"\"\n    Represents a Bitcoin transaction.\n    Data sourced from blockchain.info/rawtx/{txid}\n    \"\"\"\n    def __init__(self, txid: str, amount_sat: int, fee_sat: int, confirmed: bool = False):\n        self.txid       = txid\n        self.amount_sat = amount_sat\n        self.fee_sat    = fee_sat\n        self.confirmed  = confirmed\n\n    @property\n    def amount_btc(self) -> float:\n        return self.amount_sat / 100_000_000\n\n    @property\n    def fee_rate(self) -> float:\n        \"\"\"Fee rate in sat/vB — key metric for mempool priority.\"\"\"\n        return self.fee_sat / max(1, self.amount_sat // 100_000_000 * 250)\n\n    @classmethod\n    def from_api_response(cls, data: dict) -> \"Transaction\":\n        return cls(\n            txid       = data.get(\"hash\", \"\"),\n            amount_sat = sum(o[\"value\"] for o in data.get(\"out\", [])),\n            fee_sat    = data.get(\"fee\", 0),\n            confirmed  = data.get(\"block_height\") is not None\n        )\n\n    def __repr__(self):\n        return f\"TX({self.txid[:8]}… {self.amount_btc:.8f} BTC confirmed={self.confirmed})\"\n\n    def __eq__(self, other):\n        return isinstance(other, Transaction) and self.txid == other.txid\n\n    def __lt__(self, other):\n        return self.fee_rate < other.fee_rate  # sort by fee priority\n\n# Fetch a real transaction\ntry:\n    url = \"https://blockchain.info/rawtx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b\"\n    data = requests.get(url, timeout=10).json()\n    tx = Transaction.from_api_response(data)\n    print(repr(tx))\nexcept Exception as e:\n    print(f\"API error: {e}\")"},
+    {type:"markdown", src:"## Section 3 — Wallet (Encapsulation & File I/O)"},
+    {type:"code", src:"class Wallet:\n    \"\"\"\n    Bitcoin wallet with encapsulated transaction history.\n    Saves/loads from JSON for persistence.\n    \"\"\"\n    def __init__(self, address: str):\n        self.address       = address\n        self._transactions = []  # private — external code cannot corrupt this\n\n    @property\n    def balance_sat(self) -> int:\n        return sum(t.amount_sat for t in self._transactions if t.confirmed)\n\n    @property\n    def balance_btc(self) -> float:\n        return self.balance_sat / 100_000_000\n\n    def add_transaction(self, tx: Transaction):\n        if not isinstance(tx, Transaction):\n            raise TypeError(\"Only Transaction objects allowed\")\n        self._transactions.append(tx)\n\n    def save(self, path: str):\n        \"\"\"Persist wallet to JSON.\"\"\"\n        with open(path, \"w\") as f:\n            json.dump({\n                \"address\": self.address,\n                \"transactions\": [\n                    {\"txid\": t.txid, \"amount_sat\": t.amount_sat,\n                     \"fee_sat\": t.fee_sat, \"confirmed\": t.confirmed}\n                    for t in self._transactions\n                ]\n            }, f, indent=2)\n        print(f\"Wallet saved to {path}\")\n\n    @classmethod\n    def load(cls, path: str) -> \"Wallet\":\n        \"\"\"Load wallet from JSON.\"\"\"\n        try:\n            with open(path) as f:\n                data = json.load(f)\n            w = cls(data[\"address\"])\n            for td in data[\"transactions\"]:\n                w.add_transaction(Transaction(**td))\n            return w\n        except FileNotFoundError:\n            raise FileNotFoundError(f\"Wallet file not found: {path}\")\n\n    def __repr__(self):\n        return f\"Wallet({self.address[:10]}… {self.balance_btc:.8f} BTC)\"}"},
+    {type:"markdown", src:"## Section 4 — BlockchainAnalyzer (Context Manager & API)"},
+    {type:"code", src:"class BlockchainAnalyzer:\n    \"\"\"\n    Capstone class — wraps a Wallet, fetches live data, implements context manager.\n    Usage: with BlockchainAnalyzer(wallet) as analyzer:\n    \"\"\"\n    def __init__(self, wallet: Wallet):\n        self.wallet  = wallet\n        self._stats  = None\n\n    def __enter__(self):\n        print(\"🔗 BlockchainAnalyzer connected\")\n        self._stats = self._fetch_stats()\n        return self\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        print(\"🔌 BlockchainAnalyzer disconnected\")\n        return False  # do not suppress exceptions\n\n    def _fetch_stats(self) -> dict:\n        try:\n            return requests.get(\"https://blockchain.info/stats?format=json\", timeout=10).json()\n        except Exception:\n            return {}\n\n    def block_height(self) -> int:\n        return self._stats.get(\"n_blocks_total\", 0)\n\n    def hash_rate_ehs(self) -> float:\n        return self._stats.get(\"hash_rate\", 0) / 1_000_000\n\n    def generate_report(self) -> dict:\n        return {\n            \"wallet\":     repr(self.wallet),\n            \"block\":      self.block_height(),\n            \"hash_rate\":  f\"{self.hash_rate_ehs():.2f} EH/s\",\n            \"timestamp\":  datetime.utcnow().isoformat()\n        }\n\n# Use it\nw = Wallet(\"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa\")  # Satoshi\'s address\nwith BlockchainAnalyzer(w) as analyzer:\n    report = analyzer.generate_report()\n    for k, v in report.items():\n        print(f\"  {k:<15}: {v}\")"}
+  ]
+};
+
+function makeNotebook(cells) {
+  return {
+    nbformat: 4,
+    nbformat_minor: 5,
+    metadata: {
+      kernelspec: { display_name: "Python 3", language: "python", name: "python3" },
+      language_info: { name: "python", version: "3.12.0" }
+    },
+    cells: cells.map((c, i) => ({
+      cell_type: c.type === "markdown" ? "markdown" : "code",
+      id: "cell_" + i,
+      metadata: {},
+      source: c.src.split("\n"),
+      ...(c.type === "code" ? { outputs: [], execution_count: null } : {})
+    }))
+  };
+}
+
+function downloadNotebook(mod) {
+  const num = mod.num;
+  const cells = NOTEBOOK_CELLS[num];
+  if (!cells) {
+    // For modules without full cells yet, generate a template
+    const templateCells = [
+      { type: "markdown", src: `# 🔗 Module ${num} — ${mod.name}\n\n> **Project**: AI-Powered Blockchain Analytics — Bitcoin from Genesis to Present  \n> Upload this module\'s original notebook to Claude to get the full Bitcoin-anchored version.` },
+      { type: "markdown", src: `## Module ${num} Topics\n\n${(mod.topics||[]).map(t => `### ${t.name}\n${(t.subs||[]).map(s=>`- ${s}`).join("\n")}`).join("\n\n")}` },
+      { type: "markdown", src: `## Bitcoin Deliverable\n\n${mod.btc||""}` },
+      { type: "code", src: `# Module ${num} — ${mod.name}\n# ============================================================\n# Upload the original notebook for this module to Claude\n# to receive the complete Bitcoin-transformed version.\n\nimport requests\n\n# Free API — no key required\nbtc = requests.get(\n    \"https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd\"\n).json()[\"bitcoin\"]\n\nprint(f\"BTC/USD: ${btc[\'usd\']:,}")\nprint(f\"Module ${num}: ${mod.name} — ready for transformation!")` }
+    ];
+    downloadFile(
+      `module${String(num).padStart(2,'0')}_${mod.name.toLowerCase().replace(/[^a-z0-9]+/g,'_')}_bitcoin.ipynb`,
+      JSON.stringify(makeNotebook(templateCells), null, 2)
+    );
+    return;
+  }
+  downloadFile(
+    `module${String(num).padStart(2,'0')}_${mod.name.toLowerCase().replace(/[^a-z0-9]+/g,'_')}_bitcoin.ipynb`,
+    JSON.stringify(makeNotebook(cells), null, 2)
+  );
+}
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /* ────────────────────────────────────────────────
    INIT
 ──────────────────────────────────────────────── */
