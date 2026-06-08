@@ -879,7 +879,7 @@ function renderModuleDetail(mod){
     ${mod.topics?`<h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:1rem">Topics & sub-topics</h3><div class="topics-grid">${topicsHtml}</div>`:''}
     ${mod.code?`<h3 style="font-family:var(--display);font-size:16px;font-weight:700;margin:1.5rem 0 .75rem">Code preview</h3><div class="code-block">${mod.code}</div>`:''}
     <div style="margin-top:1.5rem;display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn-primary" onclick="downloadNotebook(mod)">Download notebook</button>
+      <button class="btn-primary" onclick="downloadNotebook(${mod.num})">Download notebook</button>
       ${mod.num<26?`<button class="btn-secondary" onclick="showModule(${mod.num+1})">Next: Module ${mod.num+1} →</button>`:''}
       ${mod.num>0?`<button class="btn-secondary" onclick="showModule(${mod.num-1})">← Module ${mod.num-1}</button>`:''}
     </div>
@@ -1473,7 +1473,11 @@ function makeTemplateCells(mod) {
   ];
 }
 
-function downloadNotebook(mod) {
+function downloadNotebook(num) {
+  num = parseInt(num);
+  var allMods = MODULES.concat(FUTURE.map(function(m){ return Object.assign({phase:4,status:'upcoming',topics:[],apis:[]},m); }));
+  var mod = allMods.find(function(m){ return m.num === num; });
+  if (!mod) { alert('Module ' + num + ' not found'); return; }
   var cells, filename;
   filename = "module" + String(mod.num).padStart(2,"0") + "_" +
              mod.name.toLowerCase().replace(/[^a-z0-9]+/g,"_") + "_bitcoin.ipynb";
